@@ -1,0 +1,14 @@
+FROM mongo:4.4.19-rc0-focal
+
+LABEL maintainer="pricea35@cardiff.ac.uk" \
+software="mongodb" \
+software.version="4.4.19-rc0-focal" \
+about.summary="MongoDB program" \
+about.home="https://github.com/mongodb/mongo"
+
+RUN apt-get update \
+&& apt-get install -y python3 python3-pip python3-dev \
+&& ln -s /usr/bin/python3 /usr/bin/python \
+&& pip3 --no-cache-dir install pymongo
+
+EXPOSE 27017
