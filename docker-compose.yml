@@ -1,14 +1,32 @@
 version: "3.8"
 services:
   mongodb:
-    image : mongo
+    image : mongo:4.4.19-rc0-focal
     container_name: mongodb
     environment:
       - PUID=1000
       - PGID=1000
+    env_file:
+      - user.env
     volumes:
       - ${PWD}/database:/data/db
       - ${PWD}/app:/data/app
     ports:
       - 27017:27017
     restart: unless-stopped
+    networks:
+      - app-bridge
+
+  pymongo:
+    image : quay.io/pathogen-genomics-cymru/pymongo:4.3.3 
+    container_name: pymongo
+    depends_on:
+      - mongodb
+    networks:
+      - app-bridge
+    command:
+      tail -f /dev/null
+
+networks:
+  app-bridge:
+    driver: bridge
