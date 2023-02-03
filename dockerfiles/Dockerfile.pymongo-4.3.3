@@ -1,0 +1,12 @@
+FROM python:3.11.1-slim-bullseye
+
+LABEL maintainer="pricea35@cardiff.ac.uk" \
+software="pymongo" \
+software.version="4.3.3" \
+about.summary="MongoDB python driver" \
+about.home="https://github.com/mongodb/mongo-python-driver"
+
+RUN apt-get update \
+&& apt-get install -y python3 python3-pip python3-dev \
+&& ln -s /usr/bin/python3 /usr/bin/python \
+&& pip3 --no-cache-dir install pymongo==4.3.3
