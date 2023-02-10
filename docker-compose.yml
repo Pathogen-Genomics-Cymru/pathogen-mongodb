@@ -7,10 +7,11 @@ services:
       - PUID=1000
       - PGID=1000
     env_file:
-      - user.env
+      - ${PWD}/app/user.env
     volumes:
       - ${PWD}/database:/data/db
       - ${PWD}/app:/data/app
+      - ${PWD}/test-data:/data/test-data
     ports:
       - 27017:27017
     restart: unless-stopped
@@ -22,6 +23,15 @@ services:
     container_name: pymongo
     depends_on:
       - mongodb
+    environment:
+      - PUID=1000
+      - PGID=1000
+    env_file:
+      - ${PWD}/app/user.env
+    volumes:
+      - ${PWD}/database:/data/db
+      - ${PWD}/app:/data/app
+      - ${PWD}/test-data:/data/test-data
     networks:
       - app-bridge
     command:
