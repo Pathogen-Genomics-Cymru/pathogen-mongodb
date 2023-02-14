@@ -4,6 +4,8 @@
 import argparse
 from utils import testconnection
 from lodestone import lodestone_import
+from phwtb import phwtb_import
+
 
 def main():
 
@@ -24,6 +26,9 @@ def main():
 
     if args.lodestoneDir:
         lodestone_import(args.lodestoneDir)
+
+    if args.phwDir:
+        phwtb_import(args.phwDir)
 
 if __name__ == '__main__':
     main()
