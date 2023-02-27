@@ -5,6 +5,7 @@ import argparse
 from utils import testconnection
 from lodestone import lodestone_import
 from phwtb import phwtb_import
+from ukhsa import ukhsa_import_geno_csv
 
 
 def main():
@@ -29,6 +30,10 @@ def main():
 
     if args.phwDir:
         phwtb_import(args.phwDir)
+
+    if args.ukhsaDir:
+        ukhsa_import_geno_csv(args.ukhsaDir)
+
 
 if __name__ == '__main__':
     main()
