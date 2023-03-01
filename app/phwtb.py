@@ -20,10 +20,9 @@ def phwtb_import(inputDir):
     inputDir = inputDir.rstrip('/')
     runID = inputDir.split('/')[-1]
     runIDelem = runID.split('_')
-    shortrunID = runIDelem[0] + "_" + runIDelem[1]
+    shortrunID = str(runIDelem[0] + "_" + runIDelem[1])
 
     db = client.tb
-    collection = db.shortrunID
     requesting = []
 
     input_csv = shortrunID + "_interim.csv"
@@ -38,5 +37,5 @@ def phwtb_import(inputDir):
                 row["PHW " + field] = elem[field]
             requesting.append(InsertOne(row))
 
-    result = collection.bulk_write(requesting)
+    result = db[shortrunID].bulk_write(requesting)
     client.close()

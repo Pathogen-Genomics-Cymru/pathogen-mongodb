@@ -34,10 +34,9 @@ def ukhsa_import_geno_csv(inputDir):
             row = {}
             for field in header:
                 row["ukhsa " + field] = elem[field]
-            shortRunID = str(row["ukhsa MiseqOutput"])
-            collection = db.shortRunID
+            shortrunID = str(row["ukhsa MiseqOutput"])
             requesting.append(InsertOne(row))
-            result = collection.bulk_write(requesting)
+            result = db[shortrunID].bulk_write(requesting)
             requesting.clear()
 
     client.close()

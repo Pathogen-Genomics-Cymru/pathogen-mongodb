@@ -23,7 +23,6 @@ def lodestone_import(inputDir):
     shortrunID = runIDelem[0] + "_" + runIDelem[1]
 
     db = client.tb
-    collection = db.shortrunID
     requesting = []
 
     include_report = glob.glob(os.path.join(inputDir, sample, "*_report.json"))
@@ -39,5 +38,5 @@ def lodestone_import(inputDir):
                     myDict["lodestone " + key] = myDict.pop(key)
                 requesting.append(InsertOne(myDict))
 
-    result = collection.bulk_write(requesting)
+    result = db[shortrunID].bulk_write(requesting)
     client.close()
