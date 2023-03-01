@@ -2,7 +2,7 @@
 
 
 import argparse
-from utils import testconnection
+from utils import testconnection, create_tb_csv
 from lodestone import lodestone_import
 from phwtb import phwtb_import
 from ukhsa import ukhsa_import_geno_csv
@@ -21,6 +21,9 @@ def main():
     parser.add_argument("-u", "--ukhsa-dir", dest="ukhsaDir", required=False,
                         help="""Output directory for UKHSA results""")
 
+    parser.add_argument("-c", "--tb-csv", dest="createTBcsv", required=False,
+                        action="store_true", help="""Create output csv """)
+
     args = parser.parse_args()
 
     testconnection()
@@ -34,7 +37,9 @@ def main():
     if args.ukhsaDir:
         ukhsa_import_geno_csv(args.ukhsaDir)
 
+    if args.createTBcsv:
+        create_tb_csv()
+
 
 if __name__ == '__main__':
     main()
-
