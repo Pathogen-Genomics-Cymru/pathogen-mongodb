@@ -2,7 +2,8 @@ from pymongo import MongoClient
 from dotenv import load_dotenv
 import os
 import csv
-
+import pandas as pd
+from collections import defaultdict
 
 def testconnection():
     """Tests connection to MongoDB, prints version if successful"""
@@ -36,12 +37,36 @@ def create_tb_csv():
 
     db = client.tb
     collection_list = db.list_collection_names()
+    print (collection_list)
 
-    header = ["_id", "PHW Accession Number", "PHW Episode Number", "PHW Mykrobe Species ID", "PHW Mykrobe Species %", "PHW Mykrobe Median", "PHW Mykrobe Status", "PHW PHW Basepairs", "PHW PHW QC status", "PHW Kraken Species ID", "PHW Kraken species %", "PHW Kraken Status", "PHW NOTES", "PHW LIMS Interim Species: TEXT TO REPORT", "PHW LIMS Interim Rif Resistance: TEXT TO REPORT", "PHW LIMS Interim Izh resistance: TEXT TO REPORT", "PHW COMMENTS TO INCLUDE IN LIMS", "PHW COMMENTS TO PENGU AND WCM"]
+    d = defaultdict(list)
+    for item in collection_list:
+        shortrunID = "_".join(item.split("_")[:2])
+        print (shortrunID)
+        lenrunID = len(shortrunID)
+        d[item[:lenrunID]].append(item)
+    print(dict(d))
 
-    with open('/data/test-data/phwtest.csv', 'w', encoding='utf-8') as csvfile:
-        writer = csv.DictWriter(csvfile, fieldnames=header)
-        writer.writeheader()
-        for collect in collection_list:
-            for post in db[collect].find():
-                writer.writerow(post)
+    phw_speciation_fields = ["PHW Accession Number", "PHW Episode Number", "PHW Mykrobe Species ID", "PHW Mykrobe Species %", "PHW Kraken Species ID", "PHW Kraken species %"]
+
+    # speciation csv
+    for key, value in d.items():
+        phw_df = pd.DataFrame()
+        lodestone_df = pd.DataFrame()
+        ukhsa_df = pd.DataFrame()
+        print (key)
+        for nested_val in value:
+            print (nested_val)
+            if nested_val.endswith("_phw"):
+                phw_df = pd.DataFrame(list(db[nested_val].find()))
+                phw_df = phw_df.drop(columns=[col for col in phw_df if col not in phw_speciation_fields])
+
+                phw_csv_name = str(nested_val) + "_speciation.csv"
+                phw_df.to_csv(phw_csv_name)
+
+            if nested_val.endswith("_lodestone"):
+                lodestone_df = pd.json_normalize(list(db[nested_val].find()), max_level=3)
+
+                lodestone_csv_name = str(nested_val) + ".csv"
+                lodestone_df.to_csv(lodestone_csv_name)
+
