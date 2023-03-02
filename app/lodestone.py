@@ -22,11 +22,13 @@ def lodestone_import(inputDir):
     runIDelem = runID.split('_')
     shortrunID = runIDelem[0] + "_" + runIDelem[1]
 
+    collection_name = shortrunID + "_lodestone"
+
     db = client.tb
     requesting = []
 
-    include_report = glob.glob(os.path.join(inputDir, sample, "*_report.json"))
-    exclude_kraken = glob.glob(os.path.join(inputDir, sample, "*_kraken_report.json"))
+    include_report = glob.glob(os.path.join(inputDir, "*/*_report.json"), recursive=True)
+    exclude_kraken = glob.glob(os.path.join(inputDir, "*/*_kraken_report.json"), recursive=True)
 
     report_list = list(set(include_report) - set(exclude_kraken))
 
@@ -36,7 +38,8 @@ def lodestone_import(inputDir):
                 myDict = json.loads(infile.read())
                 for key in list(myDict):
                     myDict["lodestone " + key] = myDict.pop(key)
+                myDict["lodestone filename"] = str(filename)
                 requesting.append(InsertOne(myDict))
 
-    result = db[shortrunID].bulk_write(requesting)
+    result = db[collection_name].bulk_write(requesting)
     client.close()

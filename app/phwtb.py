@@ -22,6 +22,8 @@ def phwtb_import(inputDir):
     runIDelem = runID.split('_')
     shortrunID = str(runIDelem[0] + "_" + runIDelem[1])
 
+    collection_name = shortrunID + "_phw"
+
     db = client.tb
     requesting = []
 
@@ -37,5 +39,5 @@ def phwtb_import(inputDir):
                 row["PHW " + field] = elem[field]
             requesting.append(InsertOne(row))
 
-    result = db[shortrunID].bulk_write(requesting)
+    result = db[collection_name].bulk_write(requesting)
     client.close()
