@@ -32,14 +32,14 @@ def lodestone_import(inputDir):
 
     report_list = list(set(include_report) - set(exclude_kraken))
 
-    for sample in os.listdir(inputDir):
-        for filename in report_list:
-            with open(os.path.join(inputDir, sample, filename), 'r') as infile:
-                myDict = json.loads(infile.read())
-                for key in list(myDict):
-                    myDict["lodestone " + key] = myDict.pop(key)
-                myDict["lodestone filename"] = str(filename)
-                requesting.append(InsertOne(myDict))
+    for reportdir in report_list:
+        filename = os.path.basename(reportdir)
+        with open(os.path.join(reportdir), 'r') as infile:
+            myDict = json.loads(infile.read())
+        for key in list(myDict):
+            myDict["lodestone " + key] = myDict.pop(key)
+        myDict["lodestone filename"] = str(filename)
+        requesting.append(InsertOne(myDict))
 
     result = db[collection_name].bulk_write(requesting)
     client.close()
