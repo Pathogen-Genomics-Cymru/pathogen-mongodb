@@ -1,5 +1,6 @@
 from pymongo import MongoClient
 from dotenv import load_dotenv
+import glob
 import os
 import csv
 import pandas as pd
@@ -147,6 +148,9 @@ def create_tb_csv():
 
         try:
             species_df = ukhsa_species.merge(phw_species, on=['PHW Accession Number', 'PHW Episode Number'], how='left').merge(lodestone_species,  on=['PHW Accession Number', 'PHW Episode Number'], how='left')
+
+            species_df.drop_duplicates(subset=['PHW Accession Number'], inplace=True)
+
             species_csv_name = str(key) + "_speciation.csv"
             species_df.to_csv(species_csv_name)
 
@@ -156,3 +160,29 @@ def create_tb_csv():
 
         except:
             print(str(key) + ": Error creating final speciation and resistance csvs")
+
+
+def species_group(inputDir):
+    """Generate grouped csvs for speciation csvs"""
+
+    print(inputDir)
+    all_csvs = glob.glob(os.path.join(inputDir , "*_speciation.csv"))
+
+    collect = []
+    for csv in all_csvs:
+        print (csv)
+        df = pd.read_csv(csv, index_col=None, header=0)
+        collect.append(df)
+
+    all_species = pd.concat(collect, axis=0, ignore_index=True)
+
+    species_match = all_species.loc[all_species['ukhsa normalised species'] == all_species['lodestone normalised species']]
+    species_match = species_match[species_match.columns.difference(['ukhsa Species', 'ukhsa Mykrobe_species_pct', 'PHW Mykrobe Species ID', 'PHW Mykrobe Species %', 'PHW Kraken Species ID', 'PHW Kraken species %', 'lodestone error', 'lodestone top_hit.name', 'lodestone top_hit.phylogenetics.species'])]
+
+    species_diff = all_species.loc[~(all_species['ukhsa normalised species'] == all_species['lodestone normalised species'])]
+    species_diff = species_diff[species_diff.columns.difference(['ukhsa Species', 'ukhsa Mykrobe_species_pct', 'PHW Mykrobe Species ID', 'PHW Mykrobe Species %', 'PHW Kraken Species ID', 'PHW Kraken species %', 'lodestone error', 'lodestone top_hit.name', 'lodestone top_hit.phylogenetics.species'])]
+
+    all_species.to_csv("all_samples.csv")
+    species_match.to_csv("species_same.csv")
+    species_diff.to_csv("species_diff.csv")
+

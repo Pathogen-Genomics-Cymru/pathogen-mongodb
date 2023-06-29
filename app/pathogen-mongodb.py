@@ -2,7 +2,7 @@
 
 
 import argparse
-from utils import testconnection, create_tb_csv
+from utils import testconnection, create_tb_csv, species_group
 from lodestone import lodestone_import
 from phwtb import phwtb_import
 from ukhsa import ukhsa_import_geno_csv
@@ -22,7 +22,10 @@ def main():
                         help="""Output directory for UKHSA results""")
 
     parser.add_argument("-c", "--tb-csv", dest="createTBcsv", required=False,
-                        action="store_true", help="""Create output csv """)
+                        action="store_true", help="""Create output csv""")
+
+    parser.add_argument("-s", "--species-group", dest="speciesGroup", required=False,
+                        help="""Path to speciation csvs""")
 
     args = parser.parse_args()
 
@@ -39,6 +42,9 @@ def main():
 
     if args.createTBcsv:
         create_tb_csv()
+
+    if args.speciesGroup:
+        species_group(args.speciesGroup)
 
 
 if __name__ == '__main__':
