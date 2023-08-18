@@ -27,6 +27,9 @@ def main():
     parser.add_argument("-s", "--species-group", dest="speciesGroup", required=False,
                         help="""Path to speciation csvs""")
 
+    parser.add_argument("-n", "--no-lineage", dest="noLineage", required=False, action="store_true",
+                        help="""Use this flag for versions of lodestone before 0.9.7""")
+
     args = parser.parse_args()
 
     testconnection()
@@ -41,7 +44,7 @@ def main():
         ukhsa_import_geno_csv(args.ukhsaDir)
 
     if args.createTBcsv:
-        create_tb_csv()
+        create_tb_csv(args.noLineage)
 
     if args.speciesGroup:
         species_group(args.speciesGroup)

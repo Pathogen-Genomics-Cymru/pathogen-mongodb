@@ -25,9 +25,11 @@ def testconnection():
     except:
         print ("Cannot connect to MongoDB")
 
+
 def same_merge(x): return ','.join(x[x.notnull()].astype(str))
 
-def create_tb_csv():
+
+def create_tb_csv(noLineage):
     """Create output tb csv"""
 
     load_dotenv()
@@ -51,7 +53,7 @@ def create_tb_csv():
 
     phw_speciation_fields = ["PHW Accession Number", "PHW Episode Number", "PHW Mykrobe Species ID", "PHW Mykrobe Species %", "PHW Kraken Species ID", "PHW Kraken species %"]
     lodestone_speciation_fields = ["PHW Accession Number", "PHW Episode Number", "lodestone top_hit.name", "lodestone top_hit.phylogenetics.species", "lodestone error"]
-    ukhsa_speciation_fields = ["PHW Accession Number", "PHW Episode Number", "MiseqOutput", "ukhsa Species", "ukhsa Mykrobe_species_pct"]
+    ukhsa_speciation_fields = ["PHW Accession Number", "PHW Episode Number", "MiseqOutput", "ukhsa Species", "ukhsa Mykrobe_species_pct", "ukhsa Lineage"]
 
     phw_resistance_fields = ["PHW Accession Number", "PHW Episode Number", "PHW LIMS Interim Rif Resistance: TEXT TO REPORT", "PHW LIMS Interim Izh resistance: TEXT TO REPORT"]
     lodestone_resistance_fields = ["PHW Accession Number", "PHW Episode Number", "lodestone data.EFFECTS.CAP", "lodestone data.EFFECTS.EMB", "lodestone data.EFFECTS.INH", "lodestone data.EFFECTS.LEV", "lodestone data.EFFECTS.MXF", "lodestone data.EFFECTS.PZA", "lodestone data.EFFECTS.RIF", "lodestone data.EFFECTS.STM"]
@@ -61,6 +63,10 @@ def create_tb_csv():
     mycoTaxMap = pd.read_csv('mycoTaxMap.csv')
     old_spec = mycoTaxMap['name_old'].tolist()
     new_spec = mycoTaxMap['name_new'].tolist()
+
+    lineageMap = pd.read_csv('lineagemap.csv')
+    afanc_lineage = lineageMap['afanc_lineage'].tolist()
+    mykrobe_lineage = lineageMap['mykrobe_compass_lineage'].tolist()
 
     # speciation and resistance csv
     for key, value in d.items():
@@ -110,18 +116,46 @@ def create_tb_csv():
                 lodestone_species = lodestone_species.groupby(level=0, axis=1).apply(lambda x: x.apply(same_merge, axis=1))
 
                 match = []
+                lineage_match = []
                 lode_spec = lodestone_species['lodestone top_hit.name'].tolist()
 
-                for elem in lode_spec:
-                    try:
-                        match_string = difflib.get_close_matches(str(elem), new_spec, n=1)[0]
-                        match_index = new_spec.index(match_string)
-                        old_match = old_spec[int(match_index)]
-                        match.append(' '.join(old_match.split()[:2]))
-                    except:
-                        match.append('')
-
-                lodestone_species['lodestone normalised species'] = match
+                if noLineage:
+                    for elem in lode_spec:
+                        try:
+                            match_string = difflib.get_close_matches(str(elem), new_spec, n=1)[0]
+                            match_index = new_spec.index(match_string)
+                            old_match = old_spec[int(match_index)]
+                            match.append(' '.join(old_match.split()[:2]))
+                        except:
+                            match.append('')
+                    lodestone_species['lodestone normalised species'] = match
+                else:
+                    for elem in lode_spec:
+                        if elem in afanc_lineage:
+                            match_index = afanc_lineage.index(elem)
+                            mykrobe_match = mykrobe_lineage[int(match_index)]
+                            lineage_match.append(mykrobe_match)
+                            if elem.startswith("Mycobacterium_tuberculosis_lineage"):
+                                match.append("Mycobacterium tuberculosis")
+                            else:
+                                try:
+                                    match_string = difflib.get_close_matches(str(elem), new_spec, n=1)[0]
+                                    match_index = new_spec.index(match_string)
+                                    old_match = old_spec[int(match_index)]
+                                    match.append(' '.join(old_match.split()[:2]))
+                                except:
+                                    match.append('')
+                        else:
+                            lineage_match.append('')
+                            try:
+                                match_string = difflib.get_close_matches(str(elem), new_spec, n=1)[0]
+                                match_index = new_spec.index(match_string)
+                                old_match = old_spec[int(match_index)]
+                                match.append(' '.join(old_match.split()[:2]))
+                            except:
+                                match.append('')
+                    lodestone_species['lodestone normalised species'] = match
+                    lodestone_species['lodestone mykrobe format lineage'] = lineage_match
 
                 lodestone_resistance = lodestone_df.drop(columns=[col for col in lodestone_df if col not in lodestone_resistance_fields])
 
