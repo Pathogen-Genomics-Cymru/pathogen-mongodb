@@ -135,7 +135,7 @@ def create_tb_csv(noLineage):
                             match_index = afanc_lineage.index(elem)
                             mykrobe_match = mykrobe_lineage[int(match_index)]
                             lineage_match.append(mykrobe_match)
-                            if elem.startswith("Mycobacterium_tuberculosis_lineage"):
+                            if elem.startswith("Mycobacterium tuberculosis lineage"):
                                 match.append("Mycobacterium tuberculosis")
                             else:
                                 try:
@@ -211,12 +211,21 @@ def species_group(inputDir):
     all_species = pd.concat(collect, axis=0, ignore_index=True)
 
     species_match = all_species.loc[all_species['ukhsa normalised species'] == all_species['lodestone normalised species']]
-    species_match = species_match[species_match.columns.difference(['ukhsa Species', 'ukhsa Mykrobe_species_pct', 'PHW Mykrobe Species ID', 'PHW Mykrobe Species %', 'PHW Kraken Species ID', 'PHW Kraken species %', 'lodestone error', 'lodestone top_hit.name', 'lodestone top_hit.phylogenetics.species'])]
+    species_match = species_match[species_match.columns.difference(['ukhsa Species', 'ukhsa Mykrobe_species_pct', 'lodestone error', 'lodestone top_hit.name', 'lodestone top_hit.phylogenetics.species'])]
 
     species_diff = all_species.loc[~(all_species['ukhsa normalised species'] == all_species['lodestone normalised species'])]
-    species_diff = species_diff[species_diff.columns.difference(['ukhsa Species', 'ukhsa Mykrobe_species_pct', 'PHW Mykrobe Species ID', 'PHW Mykrobe Species %', 'PHW Kraken Species ID', 'PHW Kraken species %', 'lodestone error', 'lodestone top_hit.name', 'lodestone top_hit.phylogenetics.species'])]
+    species_diff = species_diff[species_diff.columns.difference(['ukhsa Species', 'ukhsa Mykrobe_species_pct', 'lodestone error', 'lodestone top_hit.name', 'lodestone top_hit.phylogenetics.species'])]
 
     all_species.to_csv("all_samples.csv")
     species_match.to_csv("species_same.csv")
     species_diff.to_csv("species_diff.csv")
+
+    lineage_match = all_species.loc[all_species['ukhsa Lineage'] == all_species['lodestone mykrobe format lineage']]
+    lineage_match = lineage_match[lineage_match.columns.difference(['ukhsa Species', 'lodestone top_hit.name', 'ukhsa Lineage', 'lodestone mykrobe format lineage'])]
+
+    lineage_diff = all_species.loc[~(all_species['ukhsa Lineage'] == all_species['lodestone mykrobe format lineage'])]
+    lineage_diff = lineage_diff[lineage_diff.columns.difference(['ukhsa Species', 'lodestone top_hit.name', 'ukhsa Lineage', 'lodestone mykrobe format lineage'])]
+
+    lineage_match.to_csv("lineage_same.csv")
+    lineage_diff.to_csv("lineage_diff.csv")
 
