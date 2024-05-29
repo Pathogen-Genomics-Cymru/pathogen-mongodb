@@ -29,8 +29,9 @@ def lodestone_import(inputDir):
 
     include_report = glob.glob(os.path.join(inputDir, "*/*_report.json"), recursive=True)
     exclude_kraken = glob.glob(os.path.join(inputDir, "*/*_kraken_report.json"), recursive=True)
+    exclude_afanc = glob.glob(os.path.join(inputDir, "*/*_afanc_report.json"), recursive=True)
 
-    report_list = list(set(include_report) - set(exclude_kraken))
+    report_list = list(set(include_report) - set(exclude_kraken) - set(exclude_afanc))
 
     for reportdir in report_list:
         filename = os.path.basename(reportdir)

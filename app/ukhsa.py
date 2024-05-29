@@ -27,8 +27,6 @@ def ukhsa_import_geno_csv(inputDir):
 
     input_csv = dashDate + "-genotyping_resistance.csv"
 
-    header = ["Pipeline_date", "GUUID", "Accession", "Episode", "MiseqOutput", "Total_million_reads", "Ref_coverage_pct", "Human_pct", "Species", "Lineage", "Mykrobe_species_pct", "Median_species", "type_AK", "type_CAP", "type_CIP", "type_EMB", "type_INH", "type_KAN", "type_MOX", "type_OFX", "type_PZA", "type_RIF", "type_SM", "type_QUI"]
-
     header = pd.read_csv(os.path.join(inputDir, input_csv), index_col=False, nrows=0).columns.tolist()
 
     with open(os.path.join(inputDir, input_csv), 'r') as infile:
