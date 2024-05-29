@@ -3,16 +3,16 @@
 
 ## Introduction
 
-Pathogen-mongodb is a containerised MongoDB service that is launched through [docker-compose](https://docs.docker.com/compose/). [MongoDB](https://www.mongodb.com) is a NoSQL, document-oriented database program, which uses JSON-like array structures for storing data. Pathogen-mongodb uses the  [PyMongo](https://pymongo.readthedocs.io/en/stable/) python driver to communicate with the MongoDB database.
+Pathogen-mongodb is a containerised MongoDB service that is launched through [docker-compose](https://docs.docker.com/compose/). [MongoDB](https://www.mongodb.com) is a NoSQL, document-oriented database program, which uses JSON-like array structures for storing data. Pathogen-mongodb uses the [PyMongo](https://pymongo.readthedocs.io/en/stable/) python driver to communicate with the MongoDB database.
 
 There are two containers in the docker-compose stack (see `docker-compose.yml`):
 
 1) Containerised MongoDB program
 2) Python container to run `pathogen-mongodb.py` program utilising PyMongo
 
-The `pathogen-mongodb.py` python application in the `app` directory imports output data from the PHW TB (CSV), UKHSA compass (CSV), and lodestone (JSON) pipelines into a MongoDB database, and can be used to generate csvs comparing the speciation and antimicrobial resistance results on a per run basis. For the speciation results, grouped csvs for all the runs can also be generated. 
+The `pathogen-mongodb.py` python application in the `app` directory imports output data from the PHW TB (CSV), UKHSA compass (CSV), and lodestone (JSON) pipelines into a MongoDB database, and can be used to generate csvs comparing the speciation and lineage results on a per run basis. Grouped csvs for all the runs can also be generated. 
 
-The lodestone pipeline uses a more recent version of the NCBI taxonomy than the other pipelines, where Mycobacteriaceae is divided into the sub-genera: Mycobacterium, Mycolicibacterium, Mycolicibacter, Mycolicibacillus, and Mycobacteroides ([REF](https://www.frontiersin.org/articles/10.3389/fmicb.2018.00067/full)). Therefore, in order to make a comparison between the pipelines, a mapping file (`app/mycoTaxMap.csv`) is used to map the top species hit to the same taxonomy for UKHSA and lodestone (see the `ukhsa normalised species` and `lodestone normalised species` columns in the speciation csvs).
+The lodestone pipeline uses a more recent version of the NCBI taxonomy than the other pipelines, where Mycobacteriaceae is divided into the sub-genera: Mycobacterium, Mycolicibacterium, Mycolicibacter, Mycolicibacillus, and Mycobacteroides ([REF](https://www.frontiersin.org/articles/10.3389/fmicb.2018.00067/full)). Therefore, in order to make a comparison between the pipelines, a mapping file (`app/mycoTaxMap.csv`) is used to map the top species hit to the same taxonomy for UKHSA and lodestone (see the `ukhsa normalised species` and `lodestone normalised species` columns in the speciation csvs). Similarly, a mapping file for the lineages (`app/lineagemap.csv`) is used to the map the numerical lineages from lodestone (e.g. lineage 4.1) to the geographical lineages used in compass (e.g. European American).
 
 To ensure persistence of data, the output data of the three pipelines, the MongoDB database files, and the `pathogen-mongodb.py` app are stored locally and accessed by the containers through bind mounts.
 
@@ -96,6 +96,7 @@ options:
   -c, --tb-csv          Create output csv
   -s SPECIESGROUP, --species-group SPECIESGROUP
                         Path to speciation csvs
+  -n, --no-lineage      Use this flag for versions of lodestone before 0.9.7
 ```
 The `-l`, `-p` and `-u` flags should be set to the paths for the results from the three pipelines, which will be imported into the MongoDB database. E.g. to import data from the three pipelines (note we're using the path in the container):
 ```console
@@ -107,25 +108,27 @@ while IFS= read -r line; do
     python3 pathogen-mongodb.py -p /data/phw-results/$line -l /data/lodestone-results/$line
 done < runIDs.txt
 ```
-The `-c` flag generates speciation and resistance csvs on a per run basis of all the runs in the MongoDB database. The `-s` flag can be used to generate csvs with grouped results from multiple speciation csvs.
+The `-c` flag generates speciation csvs on a per run basis of all the runs in the MongoDB database. The `-s` flag can be used to generate csvs with grouped results from multiple speciation csvs.
 
 E.g. using the `-c` flag:
 ```console
 root@1ecdc6758c1c:/data/app# python3 pathogen-mongodb.py -c
 ```
-will generate `shortrunID_speciation.csv` and `shortrunID_resistance.csv` for each run. If there is missing data for a run (i.e. entries are only found for one or two of the three pipelines for a run), the csvs will not be produced for this run and you will see the following error message is generated:
+will generate `shortrunID_speciation.csv` for each run. If there is missing data for a run (i.e. entries are only found for one or two of the three pipelines for a run), the csvs will not be produced for this run and you will see the following error message is generated:
 ```
-shortrunID: Error creating final speciation and resistance csvs
+shortrunID: Error creating final speciation csv
 ```
 
 E.g. using the `-s` flag, set to the path where the `*_speciation.csv` are:
 ```
 root@1ecdc6758c1c:/data/app# python3 pathogen-mongodb.py -s $(PWD)
 ```
-will generate 3 csvs:
+will generate 5 csvs:
 * `all_samples.csv` (all of the results from all *_speciation.csv)
 * `species_same.csv` (samples whose normalised top species is in agreement)
 * `species_diff.csv` (samples with differing normalised top species)
+* `lineage_same.csv` (samples whose normalised lineage designation is in agreement) 
+* `lineage_diff.csv` (samples with differing normalised lineage)
 
 Currently all the csvs are written to `app` directory.
 
@@ -133,5 +136,3 @@ To spin down docker-compose:
 ```console
 user@name:~/home/pathogen-mongodb$ docker-compose down
 ```
-## Future Work
-This app is under active development. The next stage will be to add in the lineage information to the speciation comparison.
