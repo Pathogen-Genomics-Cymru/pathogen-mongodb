@@ -220,12 +220,12 @@ def species_group(inputDir):
     species_match.to_csv("species_same.csv")
     species_diff.to_csv("species_diff.csv")
 
-    lineage_match = all_species.loc[all_species['ukhsa Lineage'] == all_species['lodestone mykrobe format lineage']]
-    lineage_match = lineage_match[lineage_match.columns.difference(['ukhsa Species', 'lodestone top_hit.name', 'ukhsa Lineage', 'lodestone mykrobe format lineage'])]
+    #lineage_match = all_species.loc[all_species['ukhsa Lineage'] == all_species['lodestone mykrobe format lineage']]
+    #lineage_match = lineage_match[lineage_match.columns.difference(['ukhsa Species', 'lodestone top_hit.name', 'ukhsa Lineage', 'lodestone mykrobe format lineage'])]
 
-    lineage_diff = all_species.loc[~(all_species['ukhsa Lineage'] == all_species['lodestone mykrobe format lineage'])]
-    lineage_diff = lineage_diff[lineage_diff.columns.difference(['ukhsa Species', 'lodestone top_hit.name', 'ukhsa Lineage', 'lodestone mykrobe format lineage'])]
+    #lineage_diff = all_species.loc[~(all_species['ukhsa Lineage'] == all_species['lodestone mykrobe format lineage'])]
+    #lineage_diff = lineage_diff[lineage_diff.columns.difference(['ukhsa Species', 'lodestone top_hit.name', 'ukhsa Lineage', 'lodestone mykrobe format lineage'])]
 
-    lineage_match.to_csv("lineage_same.csv")
-    lineage_diff.to_csv("lineage_diff.csv")
+    #lineage_match.to_csv("lineage_same.csv")
+    #lineage_diff.to_csv("lineage_diff.csv")
 
