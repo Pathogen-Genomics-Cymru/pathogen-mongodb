@@ -55,9 +55,9 @@ def create_tb_csv(noLineage):
     lodestone_speciation_fields = ["PHW Accession Number", "PHW Episode Number", "lodestone top_hit.name", "lodestone top_hit.phylogenetics.species", "lodestone error"]
     ukhsa_speciation_fields = ["PHW Accession Number", "PHW Episode Number", "MiseqOutput", "ukhsa Species", "ukhsa Mykrobe_species_pct", "ukhsa Lineage"]
 
-    phw_resistance_fields = ["PHW Accession Number", "PHW Episode Number", "PHW LIMS Interim Rif Resistance: TEXT TO REPORT", "PHW LIMS Interim Izh resistance: TEXT TO REPORT"]
-    lodestone_resistance_fields = ["PHW Accession Number", "PHW Episode Number", "lodestone data.EFFECTS.CAP", "lodestone data.EFFECTS.EMB", "lodestone data.EFFECTS.INH", "lodestone data.EFFECTS.LEV", "lodestone data.EFFECTS.MXF", "lodestone data.EFFECTS.PZA", "lodestone data.EFFECTS.RIF", "lodestone data.EFFECTS.STM"]
-    ukhsa_resistance_fields = ["PHW Accession Number", "PHW Episode Number", "MiseqOutput", "ukhsa type_MOX", "ukhsa type_INH", "ukhsa type_SM", "ukhsa type_EMB", "ukhsa type_RIF", "ukhsa type_AK", "ukhsa type_CAP", "ukhsa type_CIP", "ukhsa type_KAN", "ukhsa type_OFX", "ukhsa type_PZA", "ukhsa type_QUI"]
+    #phw_resistance_fields = ["PHW Accession Number", "PHW Episode Number", "PHW LIMS Interim Rif Resistance: TEXT TO REPORT", "PHW LIMS Interim Izh resistance: TEXT TO REPORT"]
+    #lodestone_resistance_fields = ["PHW Accession Number", "PHW Episode Number", "lodestone data.EFFECTS.CAP", "lodestone data.EFFECTS.EMB", "lodestone data.EFFECTS.INH", "lodestone data.EFFECTS.LEV", "lodestone data.EFFECTS.MXF", "lodestone data.EFFECTS.PZA", "lodestone data.EFFECTS.RIF", "lodestone data.EFFECTS.STM"]
+    #ukhsa_resistance_fields = ["PHW Accession Number", "PHW Episode Number", "MiseqOutput", "ukhsa type_MOX", "ukhsa type_INH", "ukhsa type_SM", "ukhsa type_EMB", "ukhsa type_RIF", "ukhsa type_AK", "ukhsa type_CAP", "ukhsa type_CIP", "ukhsa type_KAN", "ukhsa type_OFX", "ukhsa type_PZA", "ukhsa type_QUI"]
 
 
     mycoTaxMap = pd.read_csv('mycoTaxMap.csv')
@@ -77,9 +77,9 @@ def create_tb_csv(noLineage):
         phw_species = pd.DataFrame()
         lodestone_species = pd.DataFrame()
         ukhsa_species = pd.DataFrame()
-        phw_resistance = pd.DataFrame()
-        lodestone_resistance = pd.DataFrame()
-        ukhsa_resistance = pd.DataFrame()
+        #phw_resistance = pd.DataFrame()
+        #lodestone_resistance = pd.DataFrame()
+        #ukhsa_resistance = pd.DataFrame()
 
         for nested_val in value:
 
@@ -92,7 +92,7 @@ def create_tb_csv(noLineage):
 
                 phw_species = phw_df.drop(columns=[col for col in phw_df if col not in phw_speciation_fields])
 
-                phw_resistance = phw_df.drop(columns=[col for col in phw_df if col not in phw_resistance_fields])
+                #phw_resistance = phw_df.drop(columns=[col for col in phw_df if col not in phw_resistance_fields])
 
             if nested_val.endswith("_lodestone"):
 
@@ -157,7 +157,7 @@ def create_tb_csv(noLineage):
                     lodestone_species['lodestone normalised species'] = match
                     lodestone_species['lodestone mykrobe format lineage'] = lineage_match
 
-                lodestone_resistance = lodestone_df.drop(columns=[col for col in lodestone_df if col not in lodestone_resistance_fields])
+                #lodestone_resistance = lodestone_df.drop(columns=[col for col in lodestone_df if col not in lodestone_resistance_fields])
 
             if nested_val.endswith("_ukhsa"):
 
@@ -178,7 +178,7 @@ def create_tb_csv(noLineage):
 
                 ukhsa_species['ukhsa normalised species'] = match
 
-                ukhsa_resistance = ukhsa_df.drop(columns=[col for col in ukhsa_df if col not in ukhsa_resistance_fields])
+                #ukhsa_resistance = ukhsa_df.drop(columns=[col for col in ukhsa_df if col not in ukhsa_resistance_fields])
 
         try:
             species_df = ukhsa_species.merge(phw_species, on=['PHW Accession Number', 'PHW Episode Number'], how='left').merge(lodestone_species,  on=['PHW Accession Number', 'PHW Episode Number'], how='left')
@@ -188,12 +188,12 @@ def create_tb_csv(noLineage):
             species_csv_name = str(key) + "_speciation.csv"
             species_df.to_csv(species_csv_name)
 
-            resistance_df = ukhsa_resistance.merge(phw_resistance, on=['PHW Accession Number', 'PHW Episode Number'], how='left').merge(lodestone_resistance,  on=['PHW Accession Number', 'PHW Episode Number'], how='left')
-            resistance_csv_name = str(key) + "_resistance.csv"
-            resistance_df.to_csv(resistance_csv_name)
+            #resistance_df = ukhsa_resistance.merge(phw_resistance, on=['PHW Accession Number', 'PHW Episode Number'], how='left').merge(lodestone_resistance,  on=['PHW Accession Number', 'PHW Episode Number'], how='left')
+            #resistance_csv_name = str(key) + "_resistance.csv"
+            #resistance_df.to_csv(resistance_csv_name)
 
         except:
-            print(str(key) + ": Error creating final speciation and resistance csvs")
+            print(str(key) + ": Error creating final speciation csv")
 
 
 def species_group(inputDir):
@@ -220,12 +220,12 @@ def species_group(inputDir):
     species_match.to_csv("species_same.csv")
     species_diff.to_csv("species_diff.csv")
 
-    lineage_match = all_species.loc[all_species['ukhsa Lineage'] == all_species['lodestone mykrobe format lineage']]
-    lineage_match = lineage_match[lineage_match.columns.difference(['ukhsa Species', 'lodestone top_hit.name', 'ukhsa Lineage', 'lodestone mykrobe format lineage'])]
+    #lineage_match = all_species.loc[all_species['ukhsa Lineage'] == all_species['lodestone mykrobe format lineage']]
+    #lineage_match = lineage_match[lineage_match.columns.difference(['ukhsa Species', 'lodestone top_hit.name', 'ukhsa Lineage', 'lodestone mykrobe format lineage'])]
 
-    lineage_diff = all_species.loc[~(all_species['ukhsa Lineage'] == all_species['lodestone mykrobe format lineage'])]
-    lineage_diff = lineage_diff[lineage_diff.columns.difference(['ukhsa Species', 'lodestone top_hit.name', 'ukhsa Lineage', 'lodestone mykrobe format lineage'])]
+    #lineage_diff = all_species.loc[~(all_species['ukhsa Lineage'] == all_species['lodestone mykrobe format lineage'])]
+    #lineage_diff = lineage_diff[lineage_diff.columns.difference(['ukhsa Species', 'lodestone top_hit.name', 'ukhsa Lineage', 'lodestone mykrobe format lineage'])]
 
-    lineage_match.to_csv("lineage_same.csv")
-    lineage_diff.to_csv("lineage_diff.csv")
+    #lineage_match.to_csv("lineage_same.csv")
+    #lineage_diff.to_csv("lineage_diff.csv")
 
