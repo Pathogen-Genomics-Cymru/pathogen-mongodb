@@ -123,12 +123,10 @@ E.g. using the `-s` flag, set to the path where the `*_speciation.csv` are:
 ```
 root@1ecdc6758c1c:/data/app# python3 pathogen-mongodb.py -s $(PWD)
 ```
-will generate 5 csvs:
+will generate 3 csvs:
 * `all_samples.csv` (all of the results from all *_speciation.csv)
 * `species_same.csv` (samples whose normalised top species is in agreement)
 * `species_diff.csv` (samples with differing normalised top species)
-* `lineage_same.csv` (samples whose normalised lineage designation is in agreement) 
-* `lineage_diff.csv` (samples with differing normalised lineage)
 
 Currently all the csvs are written to `app` directory.
 
